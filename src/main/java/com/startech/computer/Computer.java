@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
 import com.startech.brand.Brand;
+import com.startech.inventory.Inventory;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,5 +43,9 @@ public class Computer {
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_brand", nullable = false)
     private Brand brand;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "inventory_id")
+    private Inventory inventory;
     
 }

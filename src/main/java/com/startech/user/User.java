@@ -1,40 +1,95 @@
 package com.startech.user;
 
-import javax.persistence.Column;
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
 
-import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@Entity
-@AllArgsConstructor
+@EqualsAndHashCode
 @NoArgsConstructor
-public class User {
+@Entity
+public class User implements UserDetails {
 
     @Id
-    @Column(name="id_user") 
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
-
-    @NotBlank(message = "El campo nombre no puede estar en blanco o nulo")
     private String name;
-
-    @NotBlank(message = "El campo correo no puede estar en blanco o nulo")
+    private String lastName;
     private String email;
-
-    @NotBlank(message = "El campo contraseña no puede estar en blanco o nulo")
     private String password;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_role", nullable = false)
-    private Role role;
-    
+    @Enumerated(EnumType.STRING)
+    private Role UserRole;
+    private Boolean locked = false;
+    private Boolean enabled = true;
+
+    //Constructor sin id
+    public User(
+                String name, 
+                String lastName, 
+                String email, 
+                String password, 
+                Role userRole
+    ) {
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        UserRole = userRole;
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(Role.class.getName());
+        return Collections.singletonList(authority);
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    public String getLastname() {
+        return lastName;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !locked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
